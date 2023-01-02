@@ -91,15 +91,10 @@ def generate_signal(frequency,volume=1):
 
     #lfo
     #signal_decimal = signal_decimal + np.sin(np.pi*2*i/sample_rate)
-    x = max(np.max(signal_decimal),np.min(signal_decimal))
+    
+    signal_decimal = (signal_decimal*0.1 + 1) * (2 ** 15 - 1)
 
-    signal_decimal = signal_decimal/x
-    signal_decimal = signal_decimal*volume*0.1
-
-
-    x = max(np.max(signal_decimal),np.min(signal_decimal))
-
-    signal = list(map(int,(((signal_decimal)+1)* (2 ** 15 - 1)).tolist()))
+    signal = np.array(signal_decimal, dtype=np.uint16)
 
     signal = array.array("H",signal)
 
