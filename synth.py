@@ -20,6 +20,24 @@ def generate_signal(frequency,volume=1):
     
     return i,signal
 
+def generate_signal_betterly(freq):
+    length = int(sample_rate *4 // freq)
+
+    i = np.linspace(0,length,length)
+    
+    signal = np.concatenate((i,i*2,i*3,i*4,i*5,i*6,i*7,i*8,i*9,i*10))#(i * np.arange(10).reshape((10,1))).reshape(1,length*10)
+    signal = signal*np.pi*2*freq/sample_rate;
+    #i.reshape((10,100))
+    print(signal)
+
+    sine = np.sin(signal)
+    #matrix = np.matrix([np.pi*2*i*1*freq/sample_rate],[np.pi*2*i*1*freq/sample_rate])
+    #signal_decimal = np.sin(matrix)
+    
+    
+    return signal,sine
+
+
 
 def resample(signal,original,new):
     
