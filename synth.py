@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import timeit
 
 
 sample_rate = 44000
 
 def generate_signal(frequency,volume=1):
-    length = int(sample_rate // frequency)
+    length = int(sample_rate  *4 // frequency)
     i = np.linspace(0,length,length)
     signal_decimal = np.sin(np.pi*2*i*frequency/sample_rate)\
         +np.sin(np.pi*2*i*3*frequency/sample_rate)/3\
@@ -14,28 +15,30 @@ def generate_signal(frequency,volume=1):
         +np.sin(np.pi*2*i*9*frequency/sample_rate)/9\
         +np.sin(np.pi*2*i*11*frequency/sample_rate)/11\
         +np.sin(np.pi*2*i*13*frequency/sample_rate)/13\
-        +np.sin(np.pi*2*i*15*frequency/sample_rate)/15
-        
-    signal = ((signal_decimal+1)* (2 ** 15 - 1)).astype(int)
-    
-    return i,signal
+        +np.sin(np.pi*2*i*15*frequency/sample_rate)/15\
+        +np.sin(np.pi*2*i*17*frequency/sample_rate)/17\
+        +np.sin(np.pi*2*i*19*frequency/sample_rate)/19
+            
+    return signal_decimal
 
 def generate_signal_betterly(freq):
     length = int(sample_rate *4 // freq)
 
     i = np.linspace(0,length,length)
     
-    signal = np.concatenate((i,i*2,i*3,i*4,i*5,i*6,i*7,i*8,i*9,i*10))#(i * np.arange(10).reshape((10,1))).reshape(1,length*10)
-    signal = signal*np.pi*2*freq/sample_rate;
-    #i.reshape((10,100))
-    print(signal)
+    freq_coefficients_list = [1,3,5,7,9,11,13,15,17,19]
+    ampl_coefficients_list = [1,3,5,7,9,11,13,15,17,19]
 
-    sine = np.sin(signal)
-    #matrix = np.matrix([np.pi*2*i*1*freq/sample_rate],[np.pi*2*i*1*freq/sample_rate])
-    #signal_decimal = np.sin(matrix)
     
+    freq_coefficients = np.array(freq_coefficients_list).reshape((10,1))
+    ampl_coefficients = 1/np.array(ampl_coefficients_list).reshape((10,1))
+
+    signal = (freq_coefficients * i).flatten()*np.pi*2*freq/sample_rate;
+
+    sine = np.sin(signal).reshape((len(freq_coefficients_list),length))*ampl_coefficients
+    sine = sine.sum(axis=0)
     
-    return signal,sine
+    return sine
 
 
 
@@ -46,12 +49,16 @@ def resample(signal,original,new):
     print(choice)
     return signal[choice]
 
-x,sine = generate_signal(440)
-plt.plot(sine)       # Plot the sine of each x point
+number_of_times = 10000
+result = timeit.Timer(lambda:generate_signal(440))
+print('Old function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
 
 
-plt.plot(resample(sine,440,1600))       # Plot the sine of each x point
+number_of_times = 10000
+result = timeit.Timer(lambda:generate_signal_betterly(440))
+print('New function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
 
-x,sine = generate_signal(1600)
-plt.plot(sine)       # Plot the sine of each x point
-plt.show()                   # Display the plot
+
+plt.plot(generate_signal_betterly(440))       # Plot the sine of each x point
+plt.plot(generate_signal(440))       # Plot the sine of each x point
+plt.show()
