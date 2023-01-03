@@ -21,24 +21,51 @@ def generate_signal(frequency,volume=1):
             
     return signal_decimal
 
-def generate_signal_betterly(freq):
+def generate_signal_betterly(freq, type="sine",inverse=False,custom_freq_coeff=[],custom_ampl_coeff=[]):
     length = int(sample_rate *4 // freq)
 
     i = np.linspace(0,length,length)
     
-    freq_coefficients_list = [1,3,5,7,9,11,13,15,17,19]
-    ampl_coefficients_list = [1,3,5,7,9,11,13,15,17,19]
+    if type == "sine":
+        signal = i*np.pi*2*freq/sample_rate
+        if inverse:
+            signal = -signal
+        fourier_series = np.sin(signal)
+    else:
+        if type == "square":
+            freq_coefficients_list = np.arange(10)
+            ampl_coefficients_list = np.arange(10)
+            freq_coefficients_list = freq_coefficients_list*2+1
+            ampl_coefficients_list = 1/(ampl_coefficients_list*2+1)
+            
+        elif type == "sawtooth":
+            freq_coefficients_list = np.arange(10)+1
+            ampl_coefficients_list = np.arange(10)+1
+            ampl_coefficients_list = 1/(ampl_coefficients_list*2)
 
-    
-    freq_coefficients = np.array(freq_coefficients_list).reshape((10,1))
-    ampl_coefficients = 1/np.array(ampl_coefficients_list).reshape((10,1))
+        elif type == "triangle":
+            freq_coefficients_list = np.arange(3)+1
+            ampl_coefficients_list = np.arange(3)+1
+            freq_coefficients_list = freq_coefficients_list*2-1
+            ampl_coefficients_list = ((-1)**ampl_coefficients_list)/((2*ampl_coefficients_list-1)**2)
 
-    signal = (freq_coefficients * i).flatten()*np.pi*2*freq/sample_rate;
+        elif type == "custom":
+            freq_coefficients_list = np.array(custom_freq_coeff)
+            ampl_coefficients_list = np.array(custom_ampl_coeff)
 
-    sine = np.sin(signal).reshape((len(freq_coefficients_list),length))*ampl_coefficients
-    sine = sine.sum(axis=0)
-    
-    return sine
+        
+        if inverse:
+            ampl_coefficients_list = -ampl_coefficients_list
+
+        freq_coefficients = np.array(freq_coefficients_list).reshape((len(freq_coefficients_list),1))
+        ampl_coefficients = np.array(ampl_coefficients_list).reshape((len(ampl_coefficients_list),1))
+
+        signal = (freq_coefficients * i).flatten()*np.pi*2*freq/sample_rate
+
+        fourier_series = np.sin(signal).reshape((len(freq_coefficients_list),length))*ampl_coefficients
+        fourier_series = fourier_series.sum(axis=0)
+        
+    return fourier_series
 
 
 
@@ -49,16 +76,33 @@ def resample(signal,original,new):
     print(choice)
     return signal[choice]
 
-number_of_times = 10000
-result = timeit.Timer(lambda:generate_signal(440))
-print('Old function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+if False:
+    number_of_times = 10000
+    result = timeit.Timer(lambda:generate_signal(440))
+    print('Old function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+
+if True:
+    number_of_times = 10000
+    result = timeit.Timer(lambda:generate_signal_betterly(440))
+    print('New function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+
+fig, axs = plt.subplots(3,2)
 
 
-number_of_times = 10000
-result = timeit.Timer(lambda:generate_signal_betterly(440))
-print('New function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
-
-
-plt.plot(generate_signal_betterly(440))       # Plot the sine of each x point
-plt.plot(generate_signal(440))       # Plot the sine of each x point
+axs[0, 0].plot(generate_signal_betterly(440))     
+axs[0, 0].set_title('Sine')
+axs[0, 1].plot(generate_signal_betterly(440,inverse=True))       
+axs[0, 1].set_title('Inverted Sine')
+axs[1, 0].plot(generate_signal_betterly(440,type="square"))   
+axs[1, 0].set_title('Square Wave')
+axs[1, 1].plot(generate_signal_betterly(440,type="sawtooth"))   
+axs[1, 1].set_title('Sawtooth Wave')
+axs[2, 0].plot(generate_signal_betterly(440,type="triangle"))   
+axs[2, 0].set_title('Triangle Wave')
+axs[2, 1].plot(generate_signal_betterly(440,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)))
+axs[2, 1].set_title('Custom Wave(Piano approximation)')
+#plt.plot(generate_signal_betterly(440,type="sawtooth"))       
+#plt.plot(generate_signal_betterly(440,type="triangle"))        
+#plt.plot(generate_signal_betterly(440,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)))
+#plt.show()
 plt.show()
