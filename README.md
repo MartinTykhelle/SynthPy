@@ -32,21 +32,23 @@ $$
 
 
 ### Signal Matrix
+
 $$
  signal = \frac{f2\pi}{sample\_rate} \cdot freq\_coefficients \cdot i  
 $$
+
 $$
-signal= 
- \frac{f2\pi}{sample\_rate} 
+signal= \frac{f2\pi}{sample\_rate} 
  \begin{bmatrix}  f_0 \\  
                   f_1 \\  
                   ...\\
                   a_n
  \end{bmatrix} 
- \begin{bmatrix}  0 & 1 & 2 & ... k
- 
+ \begin{bmatrix}  
+ 0 & 1 & 2 & ... k
  \end{bmatrix} 
 $$
+
 $$
  signal= 
  \frac{f2\pi}{sample\_rate} 
@@ -58,6 +60,7 @@ $$
 $$
 
 Eventually this will turn out like this, each row of the matrix contains one fourier series.
+
 $$
 signal = 
 \begin{bmatrix}  \frac{0f_0f2\pi}{sample\_rate} & \frac{1f_0f2\pi}{sample\_rate} & \frac{2f_0f2\pi}{sample\_rate}& ... &  \frac{kf_0f2\pi}{sample\_rate}\\  
@@ -72,6 +75,7 @@ $$
 $$
 fourier\_series\_matrix = sin(signal) \cdot ampl\_coefficients 
 $$
+
 $$
 fourier\_series\_matrix = sin(
  \frac{f2\pi}{sample\_rate} 
@@ -86,9 +90,8 @@ fourier\_series\_matrix = sin(
                   ...\\
                   a_n
  \end{bmatrix}
- 
- 
 $$
+
 $$
 fourier\_series\_matrix = sin(
  \frac{f2\pi}{sample\_rate} 
@@ -101,6 +104,7 @@ fourier\_series\_matrix = sin(
 $$
 
 The rows of the matrix are eventually summed to get the fourier_series
+
 $$
 fourier\_series =  \sum_{f=1}^{k} fourier\_series\_matrix
 $$
