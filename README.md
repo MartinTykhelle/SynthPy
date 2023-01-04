@@ -87,3 +87,7 @@ fourier\_series_{matrix} =
                   \frac{0f_nf2\pi}{sample\_rate} & \frac{1f_nf2\pi}{sample\_rate} & \frac{2f_nf2\pi}{sample\_rate}& ... & & \frac{nf_nf2\pi}{sample\_rate}\\  
  \end{bmatrix}
 ```
+
+
+![Image of various signals](https://github.com/MartinTykhelle/SynthPy/blob/main/synth.py.png?raw=true)
+
