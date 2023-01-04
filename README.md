@@ -4,7 +4,7 @@ Synth for Pi Pico written in Circuitpython
 ## Math
 
 ### Declarations
-The fourier series coefficients are declared as $f_{0-n}$ and $a_{0-n}.
+The fourier series coefficients are declared as $f_{0-n}$ and $a_{0-n}.$
 
 $$
  freq\_coefficients = \begin{bmatrix}  f_0 \\  
