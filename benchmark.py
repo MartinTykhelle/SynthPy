@@ -1,8 +1,3 @@
-# SPDX-FileCopyrightText: 2020 Jeff Epler for Adafruit Industries
-# SPDX-FileCopyrightText: 2020 Zoltán Vörös for Adafruit Industries
-#
-# SPDX-License-Identifier: MIT
-
 import time
 import math
 
@@ -111,7 +106,8 @@ new = generate_signal_betterly(440,type="square")
 for i in range(min(len(old),len(new),len(vold))):
     print((old[i],new[i],vold[i]))
     time.sleep(0.01)
+    
 
 #generate_signal_math           :   43.496ms [result=-0.000237]
 #generate_signal                :   68.066ms [result=-0.000725]
-#generate_signal_betterly       :   14.307ms [result=-0.000251]
+#generate_signal_betterly       :   14.307ms [result=-0.000251]    
