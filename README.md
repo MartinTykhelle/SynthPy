@@ -110,6 +110,7 @@ fourier\textunderscore series =  \sum_{f=1}^{k} fourier\textunderscore series\te
 $$
 
 $$
+\begin{align*}
 fourier\textunderscore series =  
  [
  sin(\frac{f2\pi0f_0a_0}{sample\textunderscore rate})+sin(\frac{f2\pi0f_1a_0}{sample\textunderscore rate})+...+sin(\frac{f2\pi0f_na_0}{sample\textunderscore rate})
@@ -120,6 +121,7 @@ fourier\textunderscore series =
  \\
  sin(\frac{f2\pi nf_0a_n}{sample\textunderscore rate})+sin(\frac{f2\pi nf_1a_n}{sample\textunderscore rate})+...+sin(\frac{f2\pi nf_na_n}{sample\textunderscore rate})
  ]
+ \end{align*}
 $$
 
 
