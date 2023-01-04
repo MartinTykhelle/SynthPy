@@ -7,7 +7,7 @@ Synth for Pi Pico written in Circuitpython
 The fourier series coefficients are declared as $f_{0-n}$ and $a_{0-n}.$
 
 $$
- freq\_coefficients = \begin{bmatrix}  f_0 \\  
+ freq\textunderscore coefficients = \begin{bmatrix}  f_0 \\  
                   f_1 \\  
                   ...\\
                   f_n
@@ -15,14 +15,14 @@ $$
 $$
  
 $$
- ampl\_coefficients = \begin{bmatrix}  a_0 \\  
+ ampl\textunderscore coefficients = \begin{bmatrix}  a_0 \\  
                   a_1 \\  
                   ...\\
                   a_n
  \end{bmatrix}
 $$
 
-The length of the series, $k$ is defined as  $floor(\frac{sample\_rate}{frequency})$
+The length of the series, $k$ is defined as  $floor(\frac{sample\textunderscore rate}{frequency})$
 
 $$
  i = 
@@ -34,11 +34,11 @@ $$
 ### Signal Matrix
 
 $$
- signal = \frac{f2\pi}{sample\_rate} \cdot freq\_coefficients \cdot i  
+ signal = \frac{f2\pi}{sample\textunderscore rate} \cdot freq\textunderscore coefficients \cdot i  
 $$
 
 $$
-signal= \frac{f2\pi}{sample\_rate} 
+signal= \frac{f2\pi}{sample\textunderscore rate} 
  \begin{bmatrix}  f_0 \\  
                   f_1 \\  
                   ...\\
@@ -51,7 +51,7 @@ $$
 
 $$
  signal= 
- \frac{f2\pi}{sample\_rate} 
+ \frac{f2\pi}{sample\textunderscore rate} 
  \begin{bmatrix}  0f_0 & 1f_0 & 2f_0 &... & kf_0\\  
                   0f_1 & 1f_1 & 2f_1 &... & kf_0\\  
                   ...  & ...  & ...  &... & ... \\
@@ -63,22 +63,22 @@ Eventually this will turn out like this, each row of the matrix contains one fou
 
 $$
 signal = 
-\begin{bmatrix}  \frac{0f_0f2\pi}{sample\_rate} & \frac{1f_0f2\pi}{sample\_rate} & \frac{2f_0f2\pi}{sample\_rate}& ... &  \frac{kf_0f2\pi}{sample\_rate}\\  
-                  \frac{0f_1f2\pi}{sample\_rate} & \frac{1f_1f2\pi}{sample\_rate} & \frac{2f_1f2\pi}{sample\_rate}& ... &  \frac{kf_1f2\pi}{sample\_rate}\\  
+\begin{bmatrix}  \frac{0f_0f2\pi}{sample\textunderscore rate} & \frac{1f_0f2\pi}{sample\textunderscore rate} & \frac{2f_0f2\pi}{sample\textunderscore rate}& ... &  \frac{kf_0f2\pi}{sample\textunderscore rate}\\  
+                  \frac{0f_1f2\pi}{sample\textunderscore rate} & \frac{1f_1f2\pi}{sample\textunderscore rate} & \frac{2f_1f2\pi}{sample\textunderscore rate}& ... &  \frac{kf_1f2\pi}{sample\textunderscore rate}\\  
                   ...  & ...  & ...  &... & ... \\
-                  \frac{0f_nf2\pi}{sample\_rate} & \frac{1f_nf2\pi}{sample\_rate} & \frac{2f_nf2\pi}{sample\_rate}& ... &  \frac{kf_nf2\pi}{sample\_rate}\\  
+                  \frac{0f_nf2\pi}{sample\textunderscore rate} & \frac{1f_nf2\pi}{sample\textunderscore rate} & \frac{2f_nf2\pi}{sample\textunderscore rate}& ... &  \frac{kf_nf2\pi}{sample\textunderscore rate}\\  
  \end{bmatrix}
 $$
 
 ### Fourier Series
 
 $$
-fourier\_series\_matrix = sin(signal) \cdot ampl\_coefficients 
+fourier\textunderscore series\textunderscore matrix = sin(signal) \cdot ampl\textunderscore coefficients 
 $$
 
 $$
-fourier\_series\_matrix = sin(
- \frac{f2\pi}{sample\_rate} 
+fourier\textunderscore series\textunderscore matrix = sin(
+ \frac{f2\pi}{sample\textunderscore rate} 
  \begin{bmatrix}  0f_0 & 1f_0 & 2f_0 &... & nf_0\\  
                   0f_1 & 1f_1 & 2f_1 &... & nf_0\\  
                   ...  & ...  & ...  &... & ... \\
@@ -93,8 +93,8 @@ fourier\_series\_matrix = sin(
 $$
 
 $$
-fourier\_series\_matrix = sin(
- \frac{f2\pi}{sample\_rate} 
+fourier\textunderscore series\textunderscore matrix = sin(
+ \frac{f2\pi}{sample\textunderscore rate} 
  \begin{bmatrix}  0f_0a_0 & 1f_0a_1 & 2f_0a_3 &... & nf_0a_n\\  
                   0f_1a_0 & 1f_1a_1 & 2f_1a_3 &... & nf_1a_n\\  
                   ...     & ...     & ...     &... & ...    \\
@@ -106,19 +106,19 @@ $$
 The rows of the matrix are eventually summed to get the fourier_series
 
 $$
-fourier\_series =  \sum_{f=1}^{k} fourier\_series\_matrix
+fourier\textunderscore series =  \sum_{f=1}^{k} fourier\textunderscore series\textunderscore matrix
 $$
 
 $$
-fourier\_series =  
+fourier\textunderscore series =  
  [
- sin(\frac{f2\pi0f_0a_0}{sample\_rate})+sin(\frac{f2\pi0f_1a_0}{sample\_rate})+...+sin(\frac{f2\pi0f_na_0}{sample\_rate})
+ sin(\frac{f2\pi0f_0a_0}{sample\textunderscore rate})+sin(\frac{f2\pi0f_1a_0}{sample\textunderscore rate})+...+sin(\frac{f2\pi0f_na_0}{sample\textunderscore rate})
  ,\\
- sin(\frac{f2\pi1f_0a_1}{sample\_rate})+sin(\frac{f2\pi1f_1a_1}{sample\_rate})+...+sin(\frac{f2\pi1f_na_1}{sample\_rate})
+ sin(\frac{f2\pi1f_0a_1}{sample\textunderscore rate})+sin(\frac{f2\pi1f_1a_1}{sample\textunderscore rate})+...+sin(\frac{f2\pi1f_na_1}{sample\textunderscore rate})
  ,\\
  ,...
  \\
- sin(\frac{f2\pi nf_0a_n}{sample\_rate})+sin(\frac{f2\pi nf_1a_n}{sample\_rate})+...+sin(\frac{f2\pi nf_na_n}{sample\_rate})
+ sin(\frac{f2\pi nf_0a_n}{sample\textunderscore rate})+sin(\frac{f2\pi nf_1a_n}{sample\textunderscore rate})+...+sin(\frac{f2\pi nf_na_n}{sample\textunderscore rate})
  ]
 $$
 
