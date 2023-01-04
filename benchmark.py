@@ -1,8 +1,3 @@
-# SPDX-FileCopyrightText: 2020 Jeff Epler for Adafruit Industries
-# SPDX-FileCopyrightText: 2020 Zoltán Vörös for Adafruit Industries
-#
-# SPDX-License-Identifier: MIT
-
 import time
 import math
 
@@ -131,14 +126,14 @@ def generate_signal_betterly(freq, type="sine",inverse=False,custom_freq_coeff=[
 
 def timeit(s, f, n=100):
     t0 = time.monotonic_ns()
-    for _ in range(n):
+    for i in range(n):
         x = f()
     t1 = time.monotonic_ns()
     r = (t1 - t0) * 1e-6 / n
     print("%-30s : %8.3fms [result=%f]" % (s, r, sum(x)))
 
 print("Computing...")
-timeit("generate_signal_math", lambda: generate_signal(440))
+timeit("generate_signal_math", lambda: generate_signal_math(440))
 timeit("generate_signal", lambda: generate_signal(440))
 timeit("generate_signal_betterly", lambda: generate_signal_betterly(440,type="square"))
 
@@ -150,6 +145,6 @@ for i in range(min(len(old),len(new),len(vold))):
     print((old[i],new[i],vold[i]))
     time.sleep(0.01)
 
-#generate_signal_math           :   67.969ms [result=-0.000725]
+#generate_signal_math           :   43.496ms [result=-0.000237]
 #generate_signal                :   68.066ms [result=-0.000725]
 #generate_signal_betterly       :   14.307ms [result=-0.000251]
