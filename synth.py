@@ -71,8 +71,7 @@ def generate_signal_betterly(freq, type="sine",inverse=False,custom_freq_coeff=[
 
 def resample(signal,original,new):
     
-    length = int(sample_rate // original)*4
-    choice = np.round(np.linspace(1,len(signal)-1,num=int(original*length/new))).astype(int)
+    choice = np.round(np.linspace(1,len(signal)-1,num=int(original*len(signal)/new))).astype(int)
     print(choice)
     return signal[choice]
 
@@ -101,8 +100,13 @@ axs[2, 0].plot(generate_signal_betterly(440,type="triangle"))
 axs[2, 0].set_title('Triangle Wave')
 axs[2, 1].plot(generate_signal_betterly(440,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)))
 axs[2, 1].set_title('Custom Wave(Piano approximation)')
-#plt.plot(generate_signal_betterly(440,type="sawtooth"))       
-#plt.plot(generate_signal_betterly(440,type="triangle"))        
-#plt.plot(generate_signal_betterly(440,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)))
-#plt.show()
+
+#axs[3, 0].plot(resample(generate_signal_betterly(440,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)),440,550))
+#axs[3, 0].plot(generate_signal_betterly(550,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)))
+#axs[3, 0].set_title('Resampling')
+
+#axs[3, 1].plot(resample(generate_signal_betterly(440,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)),440,2000))
+#axs[3, 1].plot(generate_signal_betterly(2000,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)))
+#axs[3, 1].set_title('Harder Resampling')
+
 plt.show()
