@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2020 Jeff Epler for Adafruit Industries
+# SPDX-FileCopyrightText: 2020 Zoltán Vörös for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+
 import time
 import math
 
@@ -5,26 +10,6 @@ import array
 from ulab import numpy as np
 
 sample_rate = 44000
-
-def mean(values):
-    return sum(values) / len(values)
-
-def normalized_rms(values):
-    minbuf = int(mean(values))
-    samples_sum = sum(
-        float(sample - minbuf) * (sample - minbuf)
-        for sample in values
-    )
-
-    return math.sqrt(samples_sum / len(values))
-
-def normalized_rms_ulab(values):
-    # this function works with ndarrays only
-    minbuf = np.mean(values)
-    values = values - minbuf
-    samples_sum = np.sum(values * values)
-    return math.sqrt(samples_sum / len(values))
-
 
 def generate_signal_math(frequency):
     length = int(sample_rate // frequency)
@@ -42,24 +27,6 @@ def generate_signal_math(frequency):
         +math.sin(math.pi*2*i*19*frequency/sample_rate)/19
 
     return sine_wave
-
-def sin_np(frequency):
-    length = int(sample_rate // frequency)
-    i = np.linspace(0,length,length)
-    signal_decimal = np.linspace(0,length,length)
-
-    #normalize signal
-
-    signal_decimal = np.sin(np.pi*2*i*frequency/sample_rate) + np.sin(np.pi*2*i*frequency/sample_rate) + np.sin(np.pi*2*i*frequency/sample_rate) + np.sin(np.pi*2*i*frequency/sample_rate)
-
-    signal_decimal = (signal_decimal*0.1 + 1) * (2 ** 15 - 1)
-
-    signal = np.array(signal_decimal, dtype=np.uint16)
-
-    signal = array.array("H",signal)
-
-
-    return signal
 
 def generate_signal(frequency,volume=1):
     length = int(sample_rate  *4 // frequency)
@@ -126,7 +93,7 @@ def generate_signal_betterly(freq, type="sine",inverse=False,custom_freq_coeff=[
 
 def timeit(s, f, n=100):
     t0 = time.monotonic_ns()
-    for i in range(n):
+    for _ in range(n):
         x = f()
     t1 = time.monotonic_ns()
     r = (t1 - t0) * 1e-6 / n
