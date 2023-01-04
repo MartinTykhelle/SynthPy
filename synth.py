@@ -36,18 +36,18 @@ def generate_signal_betterly(freq, type="sine",inverse=False,custom_freq_coeff=[
             freq_coefficients_list = np.arange(10)
             ampl_coefficients_list = np.arange(10)
             freq_coefficients_list = freq_coefficients_list*2+1
-            ampl_coefficients_list = 1/(ampl_coefficients_list*2+1)
+            ampl_coefficients_list = 1.0/(ampl_coefficients_list*2+1)
             
         elif type == "sawtooth":
             freq_coefficients_list = np.arange(10)+1
             ampl_coefficients_list = np.arange(10)+1
-            ampl_coefficients_list = 1/(ampl_coefficients_list*2)
+            ampl_coefficients_list = 1.0/(ampl_coefficients_list*2)
 
         elif type == "triangle":
             freq_coefficients_list = np.arange(3)+1
             ampl_coefficients_list = np.arange(3)+1
             freq_coefficients_list = freq_coefficients_list*2-1
-            ampl_coefficients_list = ((-1)**ampl_coefficients_list)/((2*ampl_coefficients_list-1)**2)
+            ampl_coefficients_list = ((-1.0)**ampl_coefficients_list)/((2*ampl_coefficients_list-1)**2)
 
         elif type == "custom":
             freq_coefficients_list = np.array(custom_freq_coeff)
@@ -63,7 +63,7 @@ def generate_signal_betterly(freq, type="sine",inverse=False,custom_freq_coeff=[
         signal = (freq*2*np.pi/sample_rate)*(freq_coefficients * i)
 
         fourier_series_matrix = np.sin(signal)*ampl_coefficients 
-        fourier_series = fourier_series_matrix.sum(axis=0)
+        fourier_series = np.sum(fourier_series_matrix, axis=0)
         
     return fourier_series
 
