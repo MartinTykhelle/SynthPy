@@ -12,7 +12,7 @@ $$
                   ...\\
                   f_n
  \end{bmatrix}
- $$
+$$
  
 $$
  ampl\_coefficients = \begin{bmatrix}  a_0 \\  
@@ -21,7 +21,9 @@ $$
                   a_n
  \end{bmatrix}
 $$
+
 The length of the series, $k$ is defined as  $floor(\frac{sample\_rate}{frequency})$
+
 $$
  i = 
  \begin{bmatrix}  0 & 1 & 2 & ... k
