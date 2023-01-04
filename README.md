@@ -77,14 +77,14 @@ fourier\textunderscore series\textunderscore matrix = sin(signal) \cdot ampl\tex
 $$
 
 $$
-fourier\textunderscore series\textunderscore matrix = sin(
+fourier\textunderscore series\textunderscore matrix = sin\left(
  \frac{f2\pi}{sample\textunderscore rate} 
  \begin{bmatrix}  0f_0 & 1f_0 & 2f_0 &... & nf_0\\  
                   0f_1 & 1f_1 & 2f_1 &... & nf_0\\  
                   ...  & ...  & ...  &... & ... \\
                   0f_n & 1f_n & 2f_n &... & nf_n\\  
  \end{bmatrix} 
-)
+\right)
  \begin{bmatrix}  a_0 \\  
                   a_1 \\  
                   ...\\
@@ -93,14 +93,14 @@ fourier\textunderscore series\textunderscore matrix = sin(
 $$
 
 $$
-fourier\textunderscore series\textunderscore matrix = sin(
+fourier\textunderscore series\textunderscore matrix = sin\left(
  \frac{f2\pi}{sample\textunderscore rate} 
  \begin{bmatrix}  0f_0a_0 & 1f_0a_1 & 2f_0a_3 &... & nf_0a_n\\  
                   0f_1a_0 & 1f_1a_1 & 2f_1a_3 &... & nf_1a_n\\  
                   ...     & ...     & ...     &... & ...    \\
                   0f_na_0 & 1f_na_1 & 2f_na_3 &... & nf_na_n\\  
  \end{bmatrix}
-)
+\right)
 $$
 
 The rows of the matrix are eventually summed to get the fourier_series
