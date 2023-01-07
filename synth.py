@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import timeit
+import cProfile
 
 
 sample_rate = 44000
@@ -21,7 +22,7 @@ def generate_signal(frequency,volume=1):
             
     return signal_decimal
 
-def generate_signal_betterly(freq, type="sine",inverse=False,custom_freq_coeff=[],custom_ampl_coeff=[]):
+def generate_signal_betterly(freq, type="sine",inverse=False,custom_freq_coeff=(),custom_ampl_coeff=()):
     length = int(sample_rate // freq)
 
     i = np.linspace(0,length,length)
@@ -68,6 +69,14 @@ def generate_signal_betterly(freq, type="sine",inverse=False,custom_freq_coeff=[
     return fourier_series
 
 
+signal_dict = {}
+def get_signal(freq, type="sine",inverse=False,custom_freq_coeff=(),custom_ampl_coeff=()):
+    
+    if (freq,type,inverse,custom_freq_coeff,custom_ampl_coeff) not in signal_dict:
+        signal_dict[(freq,type,inverse,custom_freq_coeff,custom_ampl_coeff)] = generate_signal_betterly(freq,type,inverse,custom_freq_coeff,custom_ampl_coeff)
+    return signal_dict[(freq,type,inverse,custom_freq_coeff,custom_ampl_coeff)]
+
+
 
 def resample(signal,original,new):
     
@@ -80,15 +89,69 @@ if False:
     result = timeit.Timer(lambda:generate_signal(440))
     print('Old function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
 
+if False:
+    number_of_times = 10000
+    result = timeit.Timer(lambda:generate_signal_betterly(440))
+    print('New function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+    a = [
+        {'freq':440,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':441,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':442,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':443,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':444,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':445,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':446,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':447,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':448,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':449,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':450,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':451,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+        {'freq':452 ,type:"sine",'inverse':False,'custom_freq_coeff':[],'custom_ampl_coeff':[]},
+    ]
+    
+    result = timeit.Timer(lambda:next(item for item in a if item["freq"] == 450))
+    print('New function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+
+if False:
+    number_of_times = 10000
+    result = timeit.Timer(lambda:generate_signal_betterly(440))
+    print('New function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+    a = {}
+    
+    a[(440,'sine',False,(1,2,3),(1,2,3))] = 1
+    a[(440,'saw',False)] = 2
+    a[(440,'square',False)] = 3
+    a[(440,'triangle',False)] = 4
+    
+    result = timeit.Timer(lambda:a[(440,'square',False)])
+    print('New function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+
+
 if True:
     number_of_times = 10000
     result = timeit.Timer(lambda:generate_signal_betterly(440))
     print('New function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+    result = timeit.Timer(lambda:get_signal(440))
+    print('Lookup function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+    result = timeit.Timer(lambda:generate_signal_betterly(440,'square'))
+    print('New function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+    result = timeit.Timer(lambda:get_signal(440,'square'))
+    print('Lookup function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+    result = timeit.Timer(lambda:generate_signal_betterly(880,'custom',custom_ampl_coeff=(1/1,1/2,1/2),custom_freq_coeff=(2,4,8)))
+    print('New function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
+    result = timeit.Timer(lambda:get_signal(880,'custom',custom_ampl_coeff=(2,4),custom_freq_coeff=(2,4)))
+    print('Lookup function: %fns' % (result.timeit(number=number_of_times)*1000*1000/10000))
 
 plt.style.use('dark_background')
-fig, axs = plt.subplots(3,2)
 
-if True:
+plt.plot(get_signal(440))     
+plt.plot(get_signal(440,'square'))     
+plt.plot(get_signal(880))       
+plt.plot(get_signal(880,'custom',custom_ampl_coeff=(1/2,1/4,1/8),custom_freq_coeff=(2,4,8)))     
+plt.show()
+
+if False:
+    fig, axs = plt.subplots(3,2)
     axs[0, 0].plot(generate_signal_betterly(440))     
     axs[0, 0].set_title('Sine')
     axs[0, 1].plot(generate_signal_betterly(440,inverse=True))       
