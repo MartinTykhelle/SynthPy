@@ -1,0 +1,35 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Backup CIRCUITPYTHON",
+            "type": "shell",
+            "command": "copy i:/code.py ./backupCode.py",
+            "presentation": {
+                "reveal": "silent",
+                "close": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Copy to CIRCUITPYTHON",
+            "type": "shell",
+            "command": "copy  ${file} i:/code.py",
+            "presentation": {
+                "reveal": "silent",
+                "close": true
+            }
+        },
+        {
+            "label": "Build",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Backup CIRCUITPYTHON",
+                "Copy to CIRCUITPYTHON"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
