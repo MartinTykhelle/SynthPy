@@ -1,104 +1,153 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import sounddevice as sd
+import audiobusio
+import audiocore
+import board
+import array
 import time
-
+import math
+import keypad
+import asyncio
+import audiomixer
+from ulab import numpy as np
 
 class SignalGenerator:
     def __init__(self, sample_rate=44000):
-        self.sample_rate = sample_rate
-        self.signal_dict = {}
+        self.sampleRate = sample_rate
+        self.signalDict = {}
 
-    def generate_signal(self,freq, type="sine",inverse=False,custom_freq_coeff=(),custom_ampl_coeff=()):
-        length = int(self.sample_rate // freq)
+    def generateSignal(self,freq, type="sine",inverse=False,customFreqCoeff=(),customAmplCoeff=()):
+        length = int(self.sampleRate // freq)
 
         i = np.linspace(0,length,length)
         
         if type == "sine":
-            signal = i*np.pi*2*freq/self.sample_rate
+            signal = i*np.pi*2*freq/self.sampleRate
             if inverse:
                 signal = -signal
-            fourier_series = np.sin(signal)
+            fourierSeries = np.sin(signal)
         else:
             if type == "square":
-                freq_coefficients_list = np.arange(10)
-                ampl_coefficients_list = np.arange(10)
-                freq_coefficients_list = freq_coefficients_list*2+1
-                ampl_coefficients_list = 1.0/(ampl_coefficients_list*2+1)
+                freqCoefficientsList = np.arange(10)
+                amplCoefficientsList = np.arange(10)
+                freqCoefficientsList = freqCoefficientsList*2+1
+                amplCoefficientsList = 1.0/(amplCoefficientsList*2+1)
                 
             elif type == "sawtooth":
-                freq_coefficients_list = np.arange(10)+1
-                ampl_coefficients_list = np.arange(10)+1
-                ampl_coefficients_list = 1.0/(ampl_coefficients_list*2)
+                freqCoefficientsList = np.arange(10)+1
+                amplCoefficientsList = np.arange(10)+1
+                amplCoefficientsList = 1.0/(amplCoefficientsList*2)
 
             elif type == "triangle":
-                freq_coefficients_list = np.arange(3)+1
-                ampl_coefficients_list = np.arange(3)+1
-                freq_coefficients_list = freq_coefficients_list*2-1
-                ampl_coefficients_list = ((-1.0)**ampl_coefficients_list)/((2*ampl_coefficients_list-1)**2)
+                freqCoefficientsList = np.arange(3)+1
+                amplCoefficientsList = np.arange(3)+1
+                freqCoefficientsList = freqCoefficientsList*2-1
+                amplCoefficientsList = ((-1.0)**amplCoefficientsList)/((2*amplCoefficientsList-1)**2)
 
             elif type == "custom":
-                freq_coefficients_list = np.array(custom_freq_coeff)
-                ampl_coefficients_list = np.array(custom_ampl_coeff)
+                freqCoefficientsList = np.array(customFreqCoeff)
+                amplCoefficientsList = np.array(customAmplCoeff)
 
             
             if inverse:
-                ampl_coefficients_list = -ampl_coefficients_list
+                amplCoefficientsList = -amplCoefficientsList
 
-            freq_coefficients = np.array(freq_coefficients_list).reshape((len(freq_coefficients_list),1))
-            ampl_coefficients = np.array(ampl_coefficients_list).reshape((len(ampl_coefficients_list),1))
+            freqCoefficients = np.array(freqCoefficientsList).reshape((len(freqCoefficientsList),1))
+            amplCoefficients = np.array(amplCoefficientsList).reshape((len(amplCoefficientsList),1))
 
-            signal = (freq*2*np.pi/self.sample_rate)*(freq_coefficients * i)
+            signal = (freq*2*np.pi/self.sampleRate)*(freqCoefficients * i)
 
-            fourier_series_matrix = np.sin(signal)*ampl_coefficients 
-            fourier_series = np.sum(fourier_series_matrix, axis=0)
+            fourierSeriesMatrix = np.sin(signal)*amplCoefficients 
+            fourierSeries = np.sum(fourierSeriesMatrix, axis=0)
             
-        return fourier_series
+        return fourierSeries
 
-    def get_signal(self,freq, type="sine",inverse=False,custom_freq_coeff=(),custom_ampl_coeff=()):
-        if (freq,type,inverse,custom_freq_coeff,custom_ampl_coeff) not in self.signal_dict:
-            print('generated signal')
-            self.signal_dict[(freq,type,inverse,custom_freq_coeff,custom_ampl_coeff)] = self.generate_signal(freq,type,inverse,custom_freq_coeff,custom_ampl_coeff)
-        return self.signal_dict[(freq,type,inverse,custom_freq_coeff,custom_ampl_coeff)]
+    def getSignal(self,freq, type="sine",inverse=False,customFreqCoeff=(),customAmplCoeff=()):
+        if (freq,type,inverse,customFreqCoeff,customAmplCoeff) not in self.signalDict:
+            self.signalDict[(freq,type,inverse,customFreqCoeff,customAmplCoeff)] = self.generateSignal(freq,type,inverse,customFreqCoeff,customAmplCoeff)
+        return self.signalDict[(freq,type,inverse,customFreqCoeff,customAmplCoeff)]
+    
+    def deleteSignal(self,freq, type="sine",inverse=False,custom_freq_coeff=(),custom_ampl_coeff=()):
+        del  self.signalDict[(freq,type,inverse,custom_freq_coeff,custom_ampl_coeff)]
 
+    def getSignalDict(self):
+        return self.signalDict
 
-
-sg = SignalGenerator();
-
-
-sd.play(sg.get_signal(550), sg.sample_rate,loop=True)
-time.sleep(1)
-sd.play(sg.get_signal(550,type="square"), sg.sample_rate,loop=True)
-time.sleep(1)
-
-sd.play(sg.get_signal(550,type="custom",custom_ampl_coeff=(1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01),custom_freq_coeff=range(1,11)), sg.sample_rate,loop=True)
-time.sleep(1)
-
-sd.play(sg.get_signal(550), sg.sample_rate,loop=True)
-time.sleep(1)
+    def getSampleRate(self):
+        return self.sampleRate
 
 
-if False:
-    fig, axs = plt.subplots(3,2)
-    axs[0, 0].plot(generate_signal_betterly(440))     
-    axs[0, 0].set_title('Sine')
-    axs[0, 1].plot(generate_signal_betterly(440,inverse=True))       
-    axs[0, 1].set_title('Inverted Sine')
-    axs[1, 0].plot(generate_signal_betterly(440,type="square"))   
-    axs[1, 0].set_title('Square Wave')
-    axs[1, 1].plot(generate_signal_betterly(440,type="sawtooth"))   
-    axs[1, 1].set_title('Sawtooth Wave')
-    axs[2, 0].plot(generate_signal_betterly(440,type="triangle"))   
-    axs[2, 0].set_title('Triangle Wave')
-    axs[2, 1].plot(generate_signal_betterly(440,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)))
-    axs[2, 1].set_title('Custom Wave(Piano approximation)')
+def getFrequency(midiNumber):
+    return round(440*2**((midiNumber-69)/12),2);
 
-    #axs[3, 0].plot(resample(generate_signal_betterly(440,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)),440,550))
-    #axs[3, 0].plot(generate_signal_betterly(550,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)))
-    #axs[3, 0].set_title('Resampling')
+def getMidiNumberByName(octave, noteName):
+    noteNames = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
+    return (octave+1)*12 + noteNames.index(noteName.upper())    
 
-    #axs[3, 1].plot(resample(generate_signal_betterly(440,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)),440,2000))
-    #axs[3, 1].plot(generate_signal_betterly(2000,type="custom",custom_ampl_coeff=[1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01],custom_freq_coeff=range(1,11)))
-    #axs[3, 1].set_title('Harder Resampling')
 
-    plt.show()
+def getMidiNumberByNumber(octave, noteNumber):
+    return (octave+1)*12 + noteNumber  
+
+
+
+KEY_PINS = (
+    board.GP1,
+    board.GP2,
+    board.GP3,
+    board.GP4,
+    board.GP5,
+    board.GP6,
+    board.GP7
+)
+
+
+sg = SignalGenerator()
+i2s  = audiobusio.I2SOut(bit_clock=board.GP10, word_select=board.GP11, data=board.GP9)
+mixer = audiomixer.Mixer(voice_count=8, sample_rate=sg.getSampleRate(), channel_count=1,
+                         bits_per_sample=16, samples_signed=False)
+i2s.play(mixer)
+
+
+def findAvailableVoice(mixer):
+    retv = -1
+    for index in range(len(mixer.voice)):
+        if not mixer.voice[index].playing:
+            retv = index
+            break
+    return retv
+            
+
+voiceMap = {}
+
+def stopKey(key):
+    if key in voiceMap:
+        voiceIdx = voiceMap[key]
+        mixer.stop_voice(voiceIdx)
+        print("Stopping " + str(key) + " on voice " +str(voiceIdx))
+
+def playKey(key):
+    frequency = getFrequency(getMidiNumberByNumber(4,key))
+    voiceIdx = findAvailableVoice(mixer) 
+    print("Playing " + str(key)+ " freq: " + str(frequency) + " on Voice:" + str(voiceIdx))
+    if voiceIdx > -1:
+        voiceMap[key] = voiceIdx
+        signal_decimal = (sg.getSignal(frequency,type="sawtooth",inverse=True)*0.4 + 1) * (2 ** 15 - 1)
+        signal_decimal = np.array(signal_decimal, dtype=np.uint16)
+        signal = array.array('H',signal_decimal)
+        signalAc = audiocore.RawSample(signal, sample_rate=sg.getSampleRate())
+        mixer.play(signalAc, voice=voiceIdx, loop=True)
+
+
+keys = keypad.Keys(KEY_PINS, value_when_pressed=False, pull=True)
+pressed_keys = set()
+
+while True:
+    event = keys.events.get()
+    keyTranslation = [0,2,4,5,7,9,11]
+    if event:
+        key_number = keyTranslation[6-event.key_number]
+        # A key transition occurred.
+        if event.pressed:
+            playKey(key_number)
+
+        if event.released:
+            stopKey(key_number)        
+
