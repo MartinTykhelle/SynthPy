@@ -29,7 +29,11 @@
                 "Backup CIRCUITPYTHON",
                 "Copy to CIRCUITPYTHON"
             ],
-            "problemMatcher": []
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
