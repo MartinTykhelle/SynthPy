@@ -129,7 +129,7 @@ def playKey(key):
     print("Playing " + str(key)+ " freq: " + str(frequency) + " on Voice:" + str(voiceIdx))
     if voiceIdx > -1:
         voiceMap[key] = voiceIdx
-        signal_decimal = (sg.getSignal(frequency,type="sawtooth",inverse=True)*0.4 + 1) * (2 ** 15 - 1)
+        signal_decimal = (sg.getSignal(frequency,type="custom",customAmplCoeff=(1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01),customFreqCoeff=(1,2,3,4,5,6,7,8,9,10))*0.4 + 1) * (2 ** 15 - 1)
         signal_decimal = np.array(signal_decimal, dtype=np.uint16)
         signal = array.array('H',signal_decimal)
         signalAc = audiocore.RawSample(signal, sample_rate=sg.getSampleRate())

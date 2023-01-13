@@ -127,3 +127,9 @@ $$
 
 ![Image of various signals](synth.py.png?raw=true)
 
+
+
+getSignal
+get_signal
+GetSignal
+get-signal
