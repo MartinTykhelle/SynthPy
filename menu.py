@@ -5,6 +5,7 @@ import keypad
 encoder = rotaryio.IncrementalEncoder(board.GP10, board.GP11)
 lastPosition = None
 
+#rewrite
 menu = {"channels":[]}
 types = [{"title":"Sine", "value":"sine"},
          {"title":"Square", "value":"square"},
