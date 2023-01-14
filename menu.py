@@ -44,7 +44,7 @@ class Selection:
         self.value = value
     
     def setCurrentOption(self):
-        if(isinstance(self.options,range)):    
+        if(isinstance(self.options[0],int)):      
             self.value = self.options[self.optionIdx]
         else:
             self.value = self.options[self.optionIdx]["value"]
@@ -63,7 +63,7 @@ class Selection:
         return self.options[self.optionIdx]
     
     def getCurrentValueTitle(self):
-        if(isinstance(self.options,range)):    
+        if(isinstance(self.options[0],int)):    
             return self.value
         else:
             filteredList = list(filter(lambda val: val["value"]==self.value,self.options))
@@ -122,6 +122,8 @@ channel = SubMenu("Channel 1")
 channel.addSelection(Selection("Type",Options(["Sine","Square","Triangle"])))
 channel.addSelection(Selection("Transpose",range(-12,12,1),value=0))
 
+channel.nextSelection()
+channel.nextSelection()
 channel.nextSelection()
 channel.nextSelection()
 
