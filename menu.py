@@ -109,6 +109,9 @@ class Menu:
         if(self.submenuIdx >= len(self.submenus)):
             self.submenuIdx = 0 
 
+    def getCurrentSubMenu(self):
+        return self.submenus[self.submenuIdx]
+
     def prevSubMenu(self):
         self.submenuIdx = self.submenuIdx -1                
         if(self.submenuIdx < 0):
@@ -116,8 +119,30 @@ class Menu:
 
 
     
-    
+menu = Menu()
+# Init submenus
 
+menu.addSubMenu(SubMenu("Channel 1"))
+menu.addSubMenu(SubMenu("Channel 2"))
+menu.addSubMenu(SubMenu("Channel 3"))
+
+# Add options
+for i in range(3):
+    menu.nextSubMenu()
+    menu.getCurrentSubMenu().addSelection(Selection("Type",Options(["Sine","Square","Triangle"])))
+    menu.getCurrentSubMenu().addSelection(Selection("Transpose",range(-12,12,1),value=0))
+
+menu.nextSubMenu()
+menu.nextSubMenu()
+menu.nextSubMenu()
+print(menu.getCurrentSubMenu().title)
+print(menu.getCurrentSubMenu().getCurrentSelection().title)
+menu.getCurrentSubMenu().nextSelection()
+print(menu.getCurrentSubMenu().getCurrentSelection().title)
+menu.getCurrentSubMenu().nextSelection()
+print(menu.getCurrentSubMenu().getCurrentSelection().title)
+
+"""
 channel = SubMenu("Channel 1")
 channel.addSelection(Selection("Type",Options(["Sine","Square","Triangle"])))
 channel.addSelection(Selection("Transpose",range(-12,12,1),value=0))
@@ -245,3 +270,4 @@ while True:
                 print(channel["title"] + "> " + selection["title"] +"> " +value["title"])
 
     lastPosition = position
+"""
