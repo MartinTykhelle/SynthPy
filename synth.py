@@ -7,10 +7,11 @@ import math
 import keypad
 import asyncio
 import audiomixer
+import random
 from ulab import numpy as np
 
 class SignalGenerator:
-    def __init__(self, sample_rate=44000):
+    def __init__(self, sample_rate=30000):
         self.sampleRate = sample_rate
         self.signalDict = {}
 
@@ -24,6 +25,12 @@ class SignalGenerator:
             if inverse:
                 signal = -signal
             fourierSeries = np.sin(signal)
+            
+        elif type == "random":
+            signal = []
+            for i in range(2000):
+                signal.append(random.uniform(0.0,1.0))
+            fourierSeries = np.array(signal)
         else:
             if type == "square":
                 freqCoefficientsList = np.arange(10)
@@ -45,7 +52,7 @@ class SignalGenerator:
             elif type == "custom":
                 freqCoefficientsList = np.array(customFreqCoeff)
                 amplCoefficientsList = np.array(customAmplCoeff)
-
+            
             
             if inverse:
                 amplCoefficientsList = -amplCoefficientsList
@@ -101,7 +108,7 @@ KEY_PINS = (
 
 sg = SignalGenerator()
 i2s  = audiobusio.I2SOut(bit_clock=board.GP10, word_select=board.GP11, data=board.GP9)
-mixer = audiomixer.Mixer(voice_count=8, sample_rate=sg.getSampleRate(), channel_count=1,
+mixer = audiomixer.Mixer(voice_count=16, sample_rate=sg.getSampleRate(), channel_count=1,
                          bits_per_sample=16, samples_signed=False)
 i2s.play(mixer)
 
@@ -129,25 +136,28 @@ def playKey(key):
     print("Playing " + str(key)+ " freq: " + str(frequency) + " on Voice:" + str(voiceIdx))
     if voiceIdx > -1:
         voiceMap[key] = voiceIdx
-        signal_decimal = (sg.getSignal(frequency,type="custom",customAmplCoeff=(1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01),customFreqCoeff=(1,2,3,4,5,6,7,8,9,10))*0.4 + 1) * (2 ** 15 - 1)
+        signal_decimal = (sg.getSignal(frequency,type=type[typeCount],customAmplCoeff=(1,0.1,0.33,0.05,0.05,0.05,0,0.02,0,0.01),customFreqCoeff=(1,2,3,4,5,6,7,8,9,10))*0.1 + 1) * (2 ** 15 - 1)
         signal_decimal = np.array(signal_decimal, dtype=np.uint16)
         signal = array.array('H',signal_decimal)
         signalAc = audiocore.RawSample(signal, sample_rate=sg.getSampleRate())
         mixer.play(signalAc, voice=voiceIdx, loop=True)
 
-
-keys = keypad.Keys(KEY_PINS, value_when_pressed=False, pull=True)
-pressed_keys = set()
-
+type = ["sine","random","square","sawtooth","triangle","custom"]
+typeCount = 0
 while True:
-    event = keys.events.get()
-    keyTranslation = [0,2,4,5,7,9,11]
-    if event:
-        key_number = keyTranslation[6-event.key_number]
-        # A key transition occurred.
-        if event.pressed:
-            playKey(key_number)
+    typeCount = typeCount +1
+    if typeCount > len(type)-1:
+        typeCount = 0
 
-        if event.released:
-            stopKey(key_number)        
-
+    print(type[typeCount])
+    for i in [0,4,7]:
+        playKey(i)
+        time.sleep(0.4)
+        stopKey(i)
+    for i in [0,4,7]:
+        playKey(i)
+        time.sleep(0.2)
+    time.sleep(2)    
+    for i in [0,4,7]:
+        stopKey(i)
+        time.sleep(0.2)
