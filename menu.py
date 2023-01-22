@@ -1,8 +1,20 @@
 import rotaryio
 import board
 import keypad
+import busio
+import time
+import adafruit_character_lcd.character_lcd_i2c as character_lcd
+
+i2c = busio.I2C(board.GP1, board.GP0)
+
+cols = 16
+rows = 2
+lcd = character_lcd.Character_LCD_I2C(i2c, cols, rows)
+lcd.message = "Hello\nCircuitPython"
+time.sleep(2)
 
 encoder = rotaryio.IncrementalEncoder(board.GP10, board.GP11)
+
 lastPosition = None
 
 class Options:
@@ -53,11 +65,13 @@ class Selection:
         self.optionIdx = self.optionIdx +1
         if(self.optionIdx >= len(self.options)):
             self.optionIdx = 0 
+        self.setCurrentOption()
 
     def prevOption(self):
         self.optionIdx = self.optionIdx -1                
         if(self.optionIdx < 0):
             self.optionIdx = len(self.options) -1
+        self.setCurrentOption()
     
     def getCurrentOption(self):
         return self.options[self.optionIdx]
@@ -74,17 +88,21 @@ class Selection:
 class SubMenu:
     def __init__(self,title:str,name:str=None):
         self.title = title
-        self.selections = []
+        self.selections = {}
         self.selectionIdx = 0
+
         if name:
-            self.name
+            self.name = name
         else:
             self.name =self.title.lower().replace(" ","_")
     
     def addSelection(self,selection:Selection):
-        self.selections.append(selection)
+        if selection.name in self.selections:
+            raise Exception("Name must be unique.")
+        self.selections[selection.name] = selection
+
     def getCurrentSelection(self):
-        return self.selections[self.selectionIdx]
+        return self.selections[list(self.selections.keys())[self.selectionIdx]]
 
     def nextSelection(self):
         self.selectionIdx = self.selectionIdx +1
@@ -100,47 +118,120 @@ class SubMenu:
 
 class Menu:
     def __init__(self):
-        self.submenus = []
+        self.submenus = {}
         self.submenuIdx = 0
+        self.menuDepth = 0
+
     def addSubMenu(self, submenu:SubMenu):
-        self.submenus.append(submenu)  
+        if submenu.name in self.submenus:
+            raise Exception("Name must be unique.")
+        self.submenus[submenu.name] = submenu
+
+    def getCurrentSubMenu(self):
+        return self.submenus[list(self.submenus.keys())[self.submenuIdx]]
+
     def nextSubMenu(self):
         self.submenuIdx = self.submenuIdx +1
         if(self.submenuIdx >= len(self.submenus)):
             self.submenuIdx = 0 
-
-    def getCurrentSubMenu(self):
-        return self.submenus[self.submenuIdx]
 
     def prevSubMenu(self):
         self.submenuIdx = self.submenuIdx -1                
         if(self.submenuIdx < 0):
             self.submenuIdx = len(self.submenus) -1
 
+    def nextSelection(self):
+        self.getCurrentSubMenu().nextSelection()
 
+    def prevSelection(self):
+        self.getCurrentSubMenu().prevSelection()
+
+
+    def nextOption(self):
+        self.getCurrentSubMenu().getCurrentSelection().nextOption()
+
+    def prevOption(self):
+        self.getCurrentSubMenu().getCurrentSelection().prevOption()
+
+    def addSelectionToCurrent(self,selection:Selection):
+        self.getCurrentSubMenu().addSelection(selection)
+
+    def getCurrentSubmenuTitle(self):
+        return self.getCurrentSubMenu().title
+
+    def getCurrentSelectionTitle(self):
+        return self.getCurrentSubMenu().getCurrentSelection().title
+
+    def getCurrentOptionTitle(self):
+        return self.getCurrentSubMenu().getCurrentSelection().getCurrentValueTitle()
+
+    def getSubmenuSelectionValue(self, submenuName, selectionName):
+        return self.submenus[submenuName].selections[selectionName].getCurrentValueTitle()
     
+    def increaseDepth(self):
+        self.menuDepth = self.menuDepth +1
+        if self.menuDepth > 2:
+            self.menuDepth = 0
+
+
+   
 menu = Menu()
 # Init submenus
 
-menu.addSubMenu(SubMenu("Channel 1"))
-menu.addSubMenu(SubMenu("Channel 2"))
-menu.addSubMenu(SubMenu("Channel 3"))
+menu.addSubMenu(SubMenu("Channel 1",name='channel_1'))
+menu.addSubMenu(SubMenu("Channel 2",name='channel_2'))
+menu.addSubMenu(SubMenu("Channel 3",name='channel_3'))
 
 # Add options
 for i in range(3):
     menu.nextSubMenu()
-    menu.getCurrentSubMenu().addSelection(Selection("Type",Options(["Sine","Square","Triangle"])))
-    menu.getCurrentSubMenu().addSelection(Selection("Transpose",range(-12,12,1),value=0))
+    menu.addSelectionToCurrent(Selection("Type",Options(["Sine","Square","Triangle"]),'type'))
+    menu.addSelectionToCurrent(Selection("Transpose",range(-12,12,1),value=0,name="trans"))
 
-menu.nextSubMenu()
-menu.nextSubMenu()
-menu.nextSubMenu()
-print(menu.getCurrentSubMenu().title)
-print(menu.getCurrentSubMenu().getCurrentSelection().title)
-menu.getCurrentSubMenu().nextSelection()
-print(menu.getCurrentSubMenu().getCurrentSelection().title)
-menu.getCurrentSubMenu().nextSelection()
-print(menu.getCurrentSubMenu().getCurrentSelection().title)
+
+KEY_PINS = (
+    board.GP28,
+)
+
+keys = keypad.Keys(KEY_PINS, value_when_pressed=False, pull=True)
+printValue = True
+
+while True:
+    keyEvent = keys.events.get()
+    position = encoder.position
+
+    if keyEvent:
+        if keyEvent.pressed:
+            menu.increaseDepth()
+            printValue = True
+
+    if lastPosition is not None and position != lastPosition:        
+        printValue = True
+        if menu.menuDepth == 0:
+            if position > lastPosition:
+                menu.nextSubMenu()
+            else:
+                menu.prevSubMenu()
+        elif menu.menuDepth == 1:
+            if position > lastPosition:
+                menu.nextSelection()
+            else:
+                menu.prevSelection()  
+        elif menu.menuDepth == 2:
+            if position > lastPosition:
+                menu.nextOption()
+            else:
+                menu.prevOption() 
+    if printValue:
+        lcd.clear()
+        printValue = False
+        if menu.menuDepth == 0:
+            lcd.message = '{subMenu}'.format(subMenu = menu.getCurrentSubmenuTitle())
+        else:
+            lcd.message ='{subMenu} > {selection}\n{option}'.format(subMenu = menu.getCurrentSubmenuTitle(), selection = menu.getCurrentSelectionTitle(),option= menu.getCurrentOptionTitle())
+            
+    lastPosition = position
+
 
 """
 channel = SubMenu("Channel 1")
@@ -214,14 +305,9 @@ selectionIdx = 0
 valueIdx = 0
 
 # skip level 0 for now
-menuDepth = 1
 
 
-KEY_PINS = (
-    board.GP28,
-)
 
-keys = keypad.Keys(KEY_PINS, value_when_pressed=False, pull=True)
 
 
 #1 Channel, Other settings (sampling rate)
