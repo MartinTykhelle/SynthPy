@@ -134,11 +134,13 @@ class Menu:
         self.submenuIdx = self.submenuIdx +1
         if(self.submenuIdx >= len(self.submenus)):
             self.submenuIdx = 0 
+        self.getCurrentSubMenu().selectionIdx = 0
 
     def prevSubMenu(self):
         self.submenuIdx = self.submenuIdx -1                
         if(self.submenuIdx < 0):
             self.submenuIdx = len(self.submenus) -1
+        self.getCurrentSubMenu().selectionIdx = 0
 
     def nextSelection(self):
         self.getCurrentSubMenu().nextSelection()
